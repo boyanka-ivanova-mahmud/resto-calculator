@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Калкулатор за ресто</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+
+<style>
+:root {
+    --bg:#f2f4f7;
+    --card:#ffffff;
+    --text:#000;
+    --accent:#007aff;
+    --result:#eef3ff;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg:#000;
+        --card:#1c1c1e;
+        --text:#fff;
+        --accent:#0a84ff;
+        --result:#2c2c2e;
+    }
+}
+
+body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,system-ui;
+}
+
+.app {
+    max-width:430px;
+    margin:auto;
+    padding:16px;
+}
+
+.card {
+    background:var(--card);
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.15);
+}
+
+h1 {
+    text-align:center;
+    font-size:22px;
+    margin-bottom:16px;
+}
+
+label {
+    font-weight:600;
+    font-size:15px;
+    margin-top:14px;
+    display:block;
+}
+
+input, select {
+    width:100%;
+    font-size:20px;
+    padding:10px;
+    margin-top:6px;
+    border-radius:12px;
+    border:1px solid #888;
+    box-sizing:border-box;
+    background:transparent;
+    color:var(--text);
+}
+
+.result {
+    margin-top:20px;
+    padding:20px;
+    border-radius:18px;
+    background:var(--result);
+    text-align:center;
+    font-size:22px;
+    font-weight:600;
+}
+
+.footer {
+    text-align:center;
+    margin-top:14px;
+    font-size:12px;
+    opacity:0.6;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+    <div class="card">
+        <h1>Калкулатор за ресто</h1>
+
+        <label>Цена</label>
+        <input type="text" id="price" inputmode="decimal" placeholder="0.00">
+        <select id="priceCurrency">
+            <option value="BGN">BGN</option>
+            <option value="EUR">EUR</option>
+        </select>
+
+        <label>Платено</label>
+        <input type="text" id="paid" inputmode="decimal" placeholder="0.00">
+        <select id="paidCurrency">
+            <option value="BGN">BGN</option>
+            <option value="EUR">EUR</option>
+        </select>
+
+        <div class="result" id="result">
+            Въведете суми
+        </div>
+    </div>
+
+    <div class="footer">
+        Направено от Boyanka Mahmud
+    </div>
+</div>
+
+<script>
+const RATE = 1.95583;
+
+const priceInput = document.getElementById("price");
+const paidInput = document.getElementById("paid");
+const priceCurrency = document.getElementById("priceCurrency");
+const paidCurrency = document.getElementById("paidCurrency");
+const result = document.getElementById("result");
+
+function normalize(v) {
+    if (!v) return NaN;
+    return parseFloat(v.replace(",", "."));
+}
+
+function calculate() {
+    const price = normalize(priceInput.value);
+    const paid  = normalize(paidInput.value);
+
+    if (isNaN(price) || isNaN(paid)) {
+        result.textContent = "Въведете суми";
+        return;
+    }
+
+    const priceBGN = priceCurrency.value === "EUR" ? price * RATE : price;
+    const paidBGN  = paidCurrency.value === "EUR" ? paid * RATE : paid;
+
+    const change = paidBGN - priceBGN;
+
+    if (change < 0) {
+        result.textContent = "Недостатъчно платено";
+        return;
+    }
+
+    result.innerHTML =
+        "Ресто<br><br>" +
+        "<strong>" + change.toFixed(2) + " BGN</strong><br>" +
+        "<strong>" + (change / RATE).toFixed(2) + " EUR</strong>";
+}
+
+["input","change"].forEach(ev => {
+    priceInput.addEventListener(ev, calculate);
+    paidInput.addEventListener(ev, calculate);
+    priceCurrency.addEventListener(ev, calculate);
+    paidCurrency.addEventListener(ev, calculate);
+});
+</script>
+</body>
+</html>
